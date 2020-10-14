@@ -1,34 +1,51 @@
 package catalog.data.entity;
 
-import org.springframework.data.annotation.Id;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name="STOCK")
 public class ProductEntity {
-    private String id;
-    private int price;
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long itemNo;
+    private String name;
+    private int amount;
+    private String inventoryCode;
 
     public ProductEntity(){
-
     }
 
-    public ProductEntity(int price) {
-     super();
-     this.price=price;
+    public ProductEntity(String name, int amount, String inventoryCode) {
+        super();
+        this.name=name;
+        this.amount=amount;
+        this.inventoryCode=inventoryCode;
     }
 
-    @Id
-    public String getID(){
-        return id;
+    public Long getItemNo(){
+        return itemNo;
     }
 
-    public void setId(String id){
-        this.id=id;
+    public void setItemNo(Long itemNo){
+        this.itemNo=itemNo;
     }
 
-    public int getPrice(){
-        return price;
+    public String getName(){
+        return name;
     }
 
-    public void setPrice(int price){
-        this.price=price;
+    public void setName(String name) { this.name=name; }
+
+    public int getAmount(){
+        return amount;
     }
+
+    public void setAmount(int amount){
+        this.amount=amount;
+    }
+
+    public String getInventoryCode() { return inventoryCode; }
+
+    public void setInventoryCode(String inventoryCode) { this.inventoryCode=inventoryCode; }
 }
