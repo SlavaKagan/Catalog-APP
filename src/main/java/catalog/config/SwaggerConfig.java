@@ -22,34 +22,34 @@ public class SwaggerConfig {
     private String contactUrl;
     private String version;
 
-    @Value("${spring.application.name:Catalog}")
+    @Value("${spring.application.name:}")
     public void setAppName(String appName) {
         this.appName = appName;
     }
 
-    @Value("${myservice.meta.description:unknown}")
+    @Value("${app.meta.description:unknown}")
     public void setAppDescription(String appDescription) {
         this.appDescription = appDescription;
     }
 
-    @Value("${myservice.meta.version:unknown}")
+    @Value("${app.meta.version:unknown}")
     public void setVersion(String version) {
         this.version = version;
     }
 
 
-    @Value("${myservice.meta.contact.name:unknown}")
+    @Value("${app.meta.contact.name:unknown}")
     public void setContactName(String contactName) {
         this.contactName = contactName;
     }
 
-    @Value("${myservice.meta.contact.email:unknown@mail.mail}")
+    @Value("${app.meta.contact.email:unknown@mail.mail}")
     public void setContactEmail(String contactEmail) {
         this.contactEmail = contactEmail;
     }
 
 
-    @Value("${myservice.meta.contact.url:unknown}")
+    @Value("${app.meta.contact.url:unknown}")
     public void setContactUrl(String contactUrl) {
         this.contactUrl = contactUrl;
     }

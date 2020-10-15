@@ -1,5 +1,8 @@
 package catalog.utils;
 
+/**
+ * Final Strings to use in messages
+ */
 public interface FinalStrings {
 
     /******************************************************************
@@ -10,13 +13,14 @@ public interface FinalStrings {
      200-299
      **************/
     String OK= "OK";                        // code 200 - Ok
+    String CREATED= "CREATED";              // code 201 - Created
 
     /**************
      400-499
      **************/
-    String INVALID_CREDENTIALS = "Invalid credentials";                     // code 401
-    String UNAUTHORIZED = "You are not authorized to view the resource";    // code 401 - Unauthorized
-    String FORBIDDEN = "Accessing the resource is forbidden";               // code 403 - Forbidden
+    String FORBIDDEN = "Accessing the resource is forbidden";                // code 403 - Forbidden
+    String NOT_FOUND = "Resource not found";                                 // code 404 - Not Found
+    String CONFLICT = "Resource already existing";                          // code 409 - Conflict
 
     /**************
      500-599
