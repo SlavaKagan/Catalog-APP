@@ -1,25 +1,34 @@
-package catalog.data.boundary;
+package catalog.data.entity;
 
-import catalog.data.entity.ProductEntity;
 
-public class ProductBoundary {
+import javax.persistence.*;
 
+@Entity
+@Table(name="STOCK")
+public class ItemEntity {
+    @Id
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
+    private Long itemNo;
     private String name;
     private int amount;
     private String inventoryCode;
 
-    public ProductBoundary() {
-        super();
+    public ItemEntity(){
     }
 
-    public ProductBoundary(String name, int amount, String inventoryCode) {
+    public ItemEntity(String name, int amount, String inventoryCode) {
         super();
         this.name=name;
         this.amount=amount;
         this.inventoryCode=inventoryCode;
     }
 
-    public ProductBoundary(ProductEntity withdrawQuantity) {
+    public Long getItemNo(){
+        return itemNo;
+    }
+
+    public void setItemNo(Long itemNo){
+        this.itemNo=itemNo;
     }
 
     public String getName(){

@@ -1,9 +1,11 @@
 package catalog.infra;
 
 import catalog.dao.CatalogRepository;
-import catalog.data.boundary.ProductBoundary;
-import catalog.data.entity.ProductEntity;
+import catalog.data.boundary.ItemBoundary;
+import catalog.data.entity.ItemEntity;
+import catalog.exceptions.AlreadyExistsException;
 import catalog.exceptions.NotFoundException;
+import catalog.exceptions.WithdrawException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -11,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Catalog Service
@@ -36,53 +37,47 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     @Override
-    public ProductEntity create(ProductBoundary product) {
-        String inventory_code = product.getInventoryCode();
-        //if (this.catalogCrud. {
-        //    throw new AlreadyExistsException("product already exists with code: " + code);
-       // }
-        return this.catalogCrud.save(toEntity(product));
+    public ItemEntity create(ItemBoundary item) {
+        String inventory_code = item.getInventoryCode();
+        if (this.catalogCrud.findByInventoryCode(inventory_code).isPresent())
+            throw new AlreadyExistsException("item already exists with code: " + inventory_code);
+
+        return this.catalogCrud.save(toEntity(item));
     }
 
     @Override
-    public Optional<ProductEntity> getProductByItemNo(Long itemNo)
+    public ItemEntity getItemByItemNo(Long itemNo)
     {
-        return this.catalogCrud.findByItemNo(itemNo);
+        return this.catalogCrud.findByItemNo(itemNo).orElseThrow(()-> new NotFoundException("No such item in stock"));
     }
 
     @Override
-    public List<ProductEntity> getAllProducts(int page, int size, String sort) {
+    public List<ItemEntity> getAllItems(int page, int size, String sort) {
         return this.catalogCrud.findAll(PageRequest.of(page, size, Sort.Direction.ASC, sort)).getContent();
     }
 
     @Override
-    public ProductEntity withdrawQuantity(String inventoryCode,int amount) {
-        ProductEntity productEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException());
-        productEntity.setAmount(amount);
-        return this.catalogCrud.save(productEntity);
-    }
+    public ItemEntity withdrawQuantity(String inventoryCode, int amount) {
+        ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException("No such item in stock"));
+        if (itemEntity.getAmount()<amount)
+            throw new WithdrawException("Can't withdraw this amount from stock");
+        itemEntity.setAmount(itemEntity.getAmount()-amount);
+        return this.catalogCrud.save(itemEntity);
+}
 
     @Override
-    public ProductEntity depositQuantity(String inventoryCode,int amount) {
-        ProductEntity productEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException());
-        productEntity.setAmount(amount);
-        return this.catalogCrud.save(productEntity);
+    public ItemEntity depositQuantity(String inventoryCode, int amount) {
+        ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException("No such item in stock"));
+        itemEntity.setAmount(itemEntity.getAmount()+amount);
+        return this.catalogCrud.save(itemEntity);
     }
 
-    private ProductBoundary fromEntity(ProductEntity product) {
-        ProductBoundary rv = new ProductBoundary();
-        rv.setName(product.getName());
-        rv.setInventoryCode(product.getInventoryCode());
-        rv.setAmount(product.getAmount());
-        return rv;
-    }
-
-    private ProductEntity toEntity(ProductBoundary product) {
+    private ItemEntity toEntity(ItemBoundary item) {
         try {
-            ProductEntity rv = new ProductEntity();
-            rv.setName(product.getName());
-            rv.setInventoryCode(product.getInventoryCode());
-            rv.setAmount(product.getAmount());
+            ItemEntity rv = new ItemEntity();
+            rv.setName(item.getName());
+            rv.setInventoryCode(item.getInventoryCode());
+            rv.setAmount(item.getAmount());
             return rv;
         } catch (Exception e) {
             throw new RuntimeException(e);

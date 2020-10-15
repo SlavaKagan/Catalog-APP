@@ -1,16 +1,15 @@
 package catalog.infra;
 
-import catalog.data.boundary.ProductBoundary;
-import catalog.data.entity.ProductEntity;
+import catalog.data.boundary.ItemBoundary;
+import catalog.data.entity.ItemEntity;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface CatalogService {
     void deleteByCode(String inventoryCode);
-    ProductEntity create(ProductBoundary boundary);
-    Optional<ProductEntity> getProductByItemNo(Long itemNo);
-    List<ProductEntity> getAllProducts(int page, int size, String sort);
-    ProductEntity withdrawQuantity(String inventoryCode,int amount);
-    ProductEntity depositQuantity(String inventoryCode,int amount);
+    ItemEntity create(ItemBoundary boundary);
+    ItemEntity getItemByItemNo(Long itemNo);
+    List<ItemEntity> getAllItems(int page, int size, String sort);
+    ItemEntity withdrawQuantity(String inventoryCode, int amount);
+    ItemEntity depositQuantity(String inventoryCode, int amount);
 }

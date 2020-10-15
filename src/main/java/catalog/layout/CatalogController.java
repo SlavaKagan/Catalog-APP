@@ -1,9 +1,9 @@
 package catalog.layout;
 
-import catalog.data.boundary.ProductBoundary;
-import catalog.data.entity.ProductEntity;
-import catalog.exceptions.BadReqException;
-import catalog.exceptions.NotFoundException;
+import catalog.data.Option;
+import catalog.data.boundary.AmountBoundary;
+import catalog.data.boundary.ItemBoundary;
+import catalog.data.entity.ItemEntity;
 import catalog.infra.CatalogService;
 import catalog.utils.FinalStrings;
 import io.swagger.annotations.Api;
@@ -11,13 +11,11 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,17 +48,16 @@ public class CatalogController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    ProductEntity addItem(
-            @RequestBody ProductBoundary boundary) {
+    ItemEntity addItem(
+            @RequestBody ItemBoundary boundary) {
         return this.catalogService.create(boundary);
     }
 
     /**
-     * Get all items -- GET
+     * Get all items, List of the inventory items list -- GET
      */
     @ApiOperation(
             value = "Get all items",
-            notes = "default sort is id",
             nickname = "getAll")
     @ApiResponses(value = {
             @ApiResponse(code = HttpURLConnection.HTTP_OK, message = FinalStrings.OK),
@@ -68,22 +65,23 @@ public class CatalogController {
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = FinalStrings.SERVER_ERROR)
     })
     @GetMapping(
-            name = "Get all the items in the system using pagination",
+            name = "List of the inventory items list",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<ProductEntity> getAllItems(
+    public List<ItemEntity> getAllItems(
             @RequestParam(name = "sortBy", required = false, defaultValue = "name") String sort,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
-        return this.catalogService.getAllProducts(page, size, sort)
+        return this.catalogService.getAllItems(page, size, sort)
                 .stream()
                 .collect(Collectors.toList());
     }
 
     /**
-     * Get item -- GET
+     * Get item details by itemNo-- GET
      *
      */
-    @ApiOperation(value = "Get specific item",
+    @ApiOperation(
+            value = "Get specific item",
             nickname = "getItem")
     @ApiResponses(value = {
             @ApiResponse(code = HttpURLConnection.HTTP_OK, message = FinalStrings.OK),
@@ -95,30 +93,39 @@ public class CatalogController {
             value = "/{itemNo}",
             name = "Get specific item",
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ProductBoundary getProductById(@PathVariable("itemNo") Long itemNo) {
-        return this.fromEntity(this.catalogService.getProductByItemNo(itemNo)
-                .orElseThrow(() -> new NotFoundException("could not find product by itemNo: " + itemNo)));
+    public ItemBoundary getItemById(@PathVariable("itemNo") Long itemNo) {
+        return this.fromEntity(this.catalogService.getItemByItemNo(itemNo));
     }
 
     /**
      * Withdraw/Deposit quantity of a specific item in stock -- PATCH
      */
     @ApiOperation(
-            value = "Update quantity - Withdraw",
-            nickname = "Withdraw Quantity")
+            value = "Update quantity - Withdraw/Deposit",
+            nickname = "Withdraw/Deposit Quantity")
     @ApiResponses(value = {
             @ApiResponse(code = HttpURLConnection.HTTP_OK, message = FinalStrings.OK),
             @ApiResponse(code = HttpURLConnection.HTTP_FORBIDDEN, message = FinalStrings.FORBIDDEN),
             @ApiResponse(code = HttpURLConnection.HTTP_NOT_FOUND, message = FinalStrings.NOT_FOUND),
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = FinalStrings.SERVER_ERROR)
     })
-    @PatchMapping(value = "/withdraw/{inventoryCode}",
-            name = "Update quantity - Withdraw")
-    ProductBoundary withdrawQuantity(
+    @PatchMapping(value = "/quantity/{inventoryCode}/{option}",
+            name = "Update quantity - Withdraw/Deposit")
+    ItemEntity withdrawDepositQuantity(
             @PathVariable(value = "inventoryCode") String inventoryCode,
-            @RequestParam(name = "amount", required = false, defaultValue = "0") int amount) {
-        return new ProductBoundary(
-                this.catalogService.withdrawQuantity(inventoryCode,amount));
+            @PathVariable(value = "option") Option option,
+            @RequestBody AmountBoundary itemAmount) {
+
+        ItemEntity item=null;
+        switch (option) {
+            case WITHDRAW:
+                item = catalogService.withdrawQuantity(inventoryCode, itemAmount.getAmount());
+                break;
+            case DEPOSIT:
+                item = catalogService.depositQuantity(inventoryCode, itemAmount.getAmount());
+                break;
+        }
+        return item;
     }
 
     /**
@@ -141,24 +148,11 @@ public class CatalogController {
         this.catalogService.deleteByCode(inventoryCode);
     }
 
-    private ProductBoundary fromEntity(ProductEntity product) {
-        ProductBoundary rv = new ProductBoundary();
-        rv.setName(product.getName());
-        rv.setInventoryCode(product.getInventoryCode());
-        rv.setAmount(product.getAmount());
+    private ItemBoundary fromEntity(ItemEntity item) {
+        ItemBoundary rv = new ItemBoundary();
+        rv.setName(item.getName());
+        rv.setInventoryCode(item.getInventoryCode());
+        rv.setAmount(item.getAmount());
         return rv;
     }
-
-    private ProductEntity toEntity(ProductBoundary product) {
-        try {
-            ProductEntity rv = new ProductEntity();
-            rv.setName(product.getName());
-            rv.setInventoryCode(product.getInventoryCode());
-            rv.setAmount(product.getAmount());
-            return rv;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
 }
