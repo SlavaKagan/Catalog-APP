@@ -1,7 +1,7 @@
 package catalog.utils;
 
 /**
- * Final Strings
+ * Final Strings to use in messages
  */
 public interface FinalStrings {
 
