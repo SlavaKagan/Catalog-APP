@@ -68,7 +68,7 @@ public class CatalogController {
             name = "List of the inventory items list",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public List<ItemEntity> getAllItems(
-            @RequestParam(name = "sortBy", required = false, defaultValue = "name") String sort,
+            @RequestParam(name = "sortBy", required = false, defaultValue = "itemNo") String sort,
             @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "size", required = false, defaultValue = "10") int size) {
         return this.catalogService.getAllItems(page, size, sort)
