@@ -17,7 +17,6 @@ import java.util.List;
 /**
  * Catalog Service
  */
-
 @Service
 public class CatalogServiceImpl implements CatalogService {
 
@@ -25,17 +24,8 @@ public class CatalogServiceImpl implements CatalogService {
     private CatalogRepository catalogCrud;
 
     /**
-     * Delete specific item from stock
+     * Add a new item in stock
      */
-    @Override
-    @Transactional
-    public void deleteByCode(String inventoryCode) {
-        if (this.catalogCrud.findByInventoryCode(inventoryCode).equals(null)) {
-            throw new NotFoundException();
-        }
-        this.catalogCrud.deleteByInventoryCode(inventoryCode);
-    }
-
     @Override
     public ItemEntity create(ItemBoundary item) {
         String inventory_code = item.getInventoryCode();
@@ -45,17 +35,26 @@ public class CatalogServiceImpl implements CatalogService {
         return this.catalogCrud.save(toEntity(item));
     }
 
+    /**
+     * Get specific item from stock
+     */
     @Override
     public ItemEntity getItemByItemNo(Long itemNo)
     {
         return this.catalogCrud.findByItemNo(itemNo).orElseThrow(()-> new NotFoundException("No such item in stock"));
     }
 
+    /**
+     * Get all items in stock
+     */
     @Override
     public List<ItemEntity> getAllItems(int page, int size, String sort) {
         return this.catalogCrud.findAll(PageRequest.of(page, size, Sort.Direction.ASC, sort)).getContent();
     }
 
+    /**
+     * Subtract amount to an item in stock
+     */
     @Override
     public ItemEntity withdrawQuantity(String inventoryCode, int amount) {
         ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException("No such item in stock"));
@@ -63,13 +62,26 @@ public class CatalogServiceImpl implements CatalogService {
             throw new WithdrawException("Can't withdraw this amount from stock");
         itemEntity.setAmount(itemEntity.getAmount()-amount);
         return this.catalogCrud.save(itemEntity);
-}
+    }
 
+    /**
+     * Add amount to an item in stock
+     */
     @Override
     public ItemEntity depositQuantity(String inventoryCode, int amount) {
         ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException("No such item in stock"));
         itemEntity.setAmount(itemEntity.getAmount()+amount);
         return this.catalogCrud.save(itemEntity);
+    }
+
+    /**
+     * Delete specific item from stock
+     */
+    @Override
+    @Transactional
+    public void deleteByCode(String inventoryCode) {
+        ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException("No such item in stock"));
+        this.catalogCrud.delete(itemEntity);
     }
 
     private ItemEntity toEntity(ItemBoundary item) {
