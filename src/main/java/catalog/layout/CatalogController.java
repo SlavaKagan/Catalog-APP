@@ -141,7 +141,7 @@ public class CatalogController {
             @ApiResponse(code = HttpURLConnection.HTTP_INTERNAL_ERROR, message = FinalStrings.SERVER_ERROR)
     })
 
-    @DeleteMapping(path = "/{inventoryCode}")
+    @DeleteMapping(value = "/{inventoryCode}")
     @ResponseStatus(code = HttpStatus.NO_CONTENT)
     public void deleteItem(
             @PathVariable(name = "inventoryCode") String inventoryCode) {
