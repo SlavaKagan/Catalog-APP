@@ -6,6 +6,7 @@ import catalog.data.entity.ItemEntity;
 import catalog.exceptions.AlreadyExistsException;
 import catalog.exceptions.NotFoundException;
 import catalog.exceptions.WithdrawException;
+import catalog.utils.FinalStrings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -30,7 +31,7 @@ public class CatalogServiceImpl implements CatalogService {
     public ItemEntity create(ItemBoundary item) {
         String inventory_code = item.getInventoryCode();
         if (this.catalogCrud.findByInventoryCode(inventory_code).isPresent())
-            throw new AlreadyExistsException("item already exists with code: " + inventory_code);
+            throw new AlreadyExistsException(FinalStrings.CONFLICT+inventory_code);
 
         return this.catalogCrud.save(toEntity(item));
     }
@@ -41,7 +42,7 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     public ItemEntity getItemByItemNo(Long itemNo)
     {
-        return this.catalogCrud.findByItemNo(itemNo).orElseThrow(()-> new NotFoundException("No such item in stock"));
+        return this.catalogCrud.findByItemNo(itemNo).orElseThrow(()-> new NotFoundException(FinalStrings.NOT_FOUND));
     }
 
     /**
@@ -57,9 +58,9 @@ public class CatalogServiceImpl implements CatalogService {
      */
     @Override
     public ItemEntity withdrawQuantity(String inventoryCode, int amount) {
-        ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException("No such item in stock"));
+        ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException(FinalStrings.NOT_FOUND));
         if (itemEntity.getAmount()<amount)
-            throw new WithdrawException("Can't withdraw this amount from stock");
+            throw new WithdrawException(FinalStrings.WITHDRAW_PROBLEM);
         itemEntity.setAmount(itemEntity.getAmount()-amount);
         return this.catalogCrud.save(itemEntity);
     }
@@ -69,7 +70,7 @@ public class CatalogServiceImpl implements CatalogService {
      */
     @Override
     public ItemEntity depositQuantity(String inventoryCode, int amount) {
-        ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException("No such item in stock"));
+        ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException(FinalStrings.NOT_FOUND));
         itemEntity.setAmount(itemEntity.getAmount()+amount);
         return this.catalogCrud.save(itemEntity);
     }
@@ -80,7 +81,7 @@ public class CatalogServiceImpl implements CatalogService {
     @Override
     @Transactional
     public void deleteByCode(String inventoryCode) {
-        ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException("No such item in stock"));
+        ItemEntity itemEntity = this.catalogCrud.findByInventoryCode(inventoryCode).orElseThrow(() -> new NotFoundException(FinalStrings.NOT_FOUND));
         this.catalogCrud.delete(itemEntity);
     }
 

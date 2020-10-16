@@ -14,5 +14,4 @@ import java.util.Optional;
 public interface CatalogRepository extends PagingAndSortingRepository<ItemEntity, String>{
     Optional<ItemEntity> findByItemNo(@Param("itemNo") Long itemNo);
     Optional<ItemEntity> findByInventoryCode(@Param("inventoryCode") String inventoryCode);
-    Optional<ItemEntity> deleteByInventoryCode(@Param("inventoryCode") String inventoryCode);
 }
