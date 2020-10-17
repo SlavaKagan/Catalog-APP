@@ -13,6 +13,7 @@
 **http://localhost:8080/swagger-ui.html**
 
 ### `REST API/JSON` <br /> 
+### `JUNIT for tests` <br /> 
 ### `Docker` <br /> 
 
 ###  `H2 Database (only local) with JPA` <br /> 
