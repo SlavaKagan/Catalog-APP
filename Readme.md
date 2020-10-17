@@ -12,9 +12,14 @@
 ### `Swagger API` <br /> 
 **http://localhost:8080/swagger-ui.html**
 
-### `REST API/JSON` <br /> 
-### `JUNIT for tests` <br /> 
+### `REST API/JSON` <br />
+**The project uses RestAPI** - a way for two computer systems 
+to communicate over HTTP in a similar way to web browsers and servers. <br />
+### `JUNIT for tests` <br />
+**The project uses JUnit** - a unit testing framework for Java programming language. <br /> 
 ### `Docker` <br /> 
+**The project uses Docker** - a tool designed to make it easier to create, 
+deploy, and run applications by using containers. <br />
 
 ###  `H2 Database (only local) with JPA` <br /> 
 **[H2 Console](http://localhost:8080/h2-console/)**
